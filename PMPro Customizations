@@ -1,0 +1,448 @@
+<?php
+/*
+Plugin Name: PMPro Customizations
+Plugin URI: https://www.paidmembershipspro.com/wp/pmpro-customizations/
+Description: Customizations for my Paid Memberships Pro Setup
+Version: .1
+Author: Paid Memberships Pro
+Author URI: https://www.paidmembershipspro.com
+*/
+
+//customization Paid Memberships Pro – Sponsored Members Add On: for company member allow 5 seats, for corporate member allow 15 seats
+
+
+	global $pmprosm_sponsored_account_levels;	
+	$pmprosm_sponsored_account_levels = array(
+		//set 5 seats at checkout
+		2 => array(
+			'main_level_id' => 2,		//redundant but useful
+			'sponsored_level_id' => 9,	//array or single id
+			'seats' => 15			
+		),
+		1 => array(
+			'main_level_id' => 1,		//redundant but useful
+			'sponsored_level_id' => 8,	//array or single id
+			'seats' => 5			
+		),
+		10 => array(
+			'main_level_id' => 10,		//redundant but useful
+			'sponsored_level_id' => 11,	//array or single id
+			'seats' => 50			
+		),
+	);
+
+
+
+function my_pmprorh_init()
+{
+    //don't break if Register Helper is not loaded
+    if(!function_exists("pmprorh_add_registration_field"))
+    {
+        return false;
+    }
+
+    //define the fields
+    $fields = array();
+     $fields[] = new PMProRH_Field(
+        "memb_type",                   // input name, will also be used as meta key
+        "select",                   // type of field
+        array(
+            "levels"=>array(1,2,3,8,9),
+            'label' => 'Membership Category',
+                        "memberslistcsv"=>true,
+			"profile"=>true,    //make sure admins can see this field
+            "options"=>array(       // <option> elements for select field
+                "Cheesemaker"=>"Cheesemaker",
+                "Trade"=>"Trade"
+        ))); 
+    $fields[] = new PMProRH_Field(
+        "company",              // input name, will also be used as meta key
+        "text",                 // type of field
+        array(
+            "size"=>40,         // input size
+            "class"=>"company", // custom class
+            "profile"=>true,    // show in user profile
+            "levels"=>array(1,2,3,8,9)
+        ));
+    $fields[] = new PMProRH_Field(
+        "first_name",           // input name, will also be used as meta key
+        "text",                 // type of field
+        array(
+            "size"=>40,         // input size
+  			"label"=>"First Name",   // custom field label
+            "profile"=>true,    // show in user profile
+            "levels"=>array(8,9)
+           // "required"=>true    // make this field required
+        ));
+	$fields[] = new PMProRH_Field(
+        "last_name",           // input name, will also be used as meta key
+        "text",                 // type of field
+        array(
+            "size"=>40,         // input size
+  			"label"=>"Last Name",   // custom field label
+            "profile"=>true,    // show in user profile
+            "levels"=>array(8,9)
+           // "required"=>true    // make this field required
+        ));
+	$fields[] = new PMProRH_Field(
+        "streetaddr1",                     // input name, will also be used as meta key
+        "text",                        // type of field
+        array(
+            "label"=>"Business Street Address",   // custom field label
+            "profile"=>true,    // show in user profile
+            // "required"=>true    // make this field required.  Cannot be required if using next line of code
+            "levels"=>array(1,2,3)  // only show for membership levels 1 and 2
+        ));
+    $fields[] = new PMProRH_Field(
+        "Memb_State",                   // input name, will also be used as meta key
+        "select",                   // type of field
+        array(
+		//	"required" => true,
+		"label"=>"Business State",   // custom field label
+		"profile"=>true,    // show in user profile
+		"levels"=>array(1,2,3),
+            "options"=>array('AL'=>"Alabama",
+                'AK'=>"Alaska",
+                'AZ'=>"Arizona",
+                'AR'=>"Arkansas",
+                'CA'=>"California",
+                'CO'=>"Colorado",
+                'CT'=>"Connecticut",
+                'DE'=>"Delaware",
+                'DC'=>"District Of Columbia",
+                'FL'=>"Florida",
+                'GA'=>"Georgia",
+                'HI'=>"Hawaii",
+                'ID'=>"Idaho",
+                'IL'=>"Illinois",
+                'IN'=>"Indiana",
+                'IA'=>"Iowa",
+                'KS'=>"Kansas",
+                'KY'=>"Kentucky",
+                'LA'=>"Louisiana",
+                'ME'=>"Maine",
+                'MD'=>"Maryland",
+                'MA'=>"Massachusetts",
+                'MI'=>"Michigan",
+                'MN'=>"Minnesota",
+                'MS'=>"Mississippi",
+                'MO'=>"Missouri",
+                'MT'=>"Montana",
+                'NE'=>"Nebraska",
+                'NV'=>"Nevada",
+                'NH'=>"New Hampshire",
+                'NJ'=>"New Jersey",
+                'NM'=>"New Mexico",
+                'NY'=>"New York",
+                'NC'=>"North Carolina",
+                'ND'=>"North Dakota",
+                'OH'=>"Ohio",
+                'OK'=>"Oklahoma",
+                'OR'=>"Oregon",
+                'PA'=>"Pennsylvania",
+                'RI'=>"Rhode Island",
+                'SC'=>"South Carolina",
+                'SD'=>"South Dakota",
+                'TN'=>"Tennessee",
+                'TX'=>"Texas",
+                'UT'=>"Utah",
+                'VT'=>"Vermont",
+                'VA'=>"Virginia",
+                'WA'=>"Washington",
+                'WV'=>"West Virginia",
+                'WI'=>"Wisconsin",
+                'WY'=>"Wyoming")
+        ));
+    $fields[] = new PMProRH_Field(
+        "postal_code",                     // input name, will also be used as meta key
+        "text",                        // type of field
+        array(
+            "label"=>"Postal Code",   // custom field label
+            "profile"=>true,    // show in user profile
+          //  "required"=>true                      // make this field required
+            "levels"=>array(1,2,3)
+        ));
+        
+         
+// $fields[] = new PMProRH_Field(
+//       "website",                     // website, will also be used as meta key
+ //       "text",                        // type of field
+ //       array(
+ //           "label"=>"Website",   // custom field label
+ //           "profile"=>true    // show in user profile
+ //       ));
+            
+ $fields[] = new PMProRH_Field(
+        "instagram",                     // website, will also be used as meta key
+        "text",                        // type of field
+        array(
+            "label"=>"Instagram (Full URL beginning with https://)",   // custom field label
+            "profile"=>true    // show in user profile
+        ));
+        
+ $fields[] = new PMProRH_Field(
+        "facebook",                     // website, will also be used as meta key
+        "text",                        // type of field
+        array(
+            "label"=>"Facebook (Full URL beginning with https://)",   // custom field label
+            "profile"=>true    // show in user profile
+        ));
+                
+        
+    $fields[] = new PMProRH_Field(
+        "about_member",                     // input name, will also be used as meta key
+        "textarea",                        // type of field
+        array(
+            "label"=>"Tell us about you - describe yourself, your company/organization, your cheese",   // custom field label
+            "profile"=>true,    // show in user profile
+         //   "required"=>true                      // make this field required
+        ));
+    $fields[] = new PMProRH_Field(
+        "contact_source",                   // input name, will also be used as meta key
+        "select",                   // type of field
+        array('label' => 'How did your learn about the Guild',
+          		"memberslistcsv"=>true,
+			"profile"=>true,     //show on user profile
+			"options"=>array(       // <option> elements for select field
+                "other_member"=>"Another Cheese Guild Member",
+                "online_search"=>"Online Search",
+                "trade_show"=>"Trade Show",
+                "guild_event"=>"Attended Cheese Guild Event",
+                "friend"=>"Friend",
+                "other"=>"Other"
+        )));
+	
+	pmprorh_add_checkout_box("personal", "CAGC Member Profile Information"); //Create a checkout box labeled "CAGC Member Profile Information"
+
+    //add the fields into a new checkout_boxes are of the checkout page
+    foreach($fields as $field)
+        pmprorh_add_registration_field(
+            "personal", // location on checkout page
+            $field            // PMProRH_Field object
+        );
+
+    //that's it. see the PMPro Register Helper readme for more information and examples.
+}
+
+add_action("init", "my_pmprorh_init");
+
+
+
+//Add 'Membership_Cateogry' Column to Members List Header
+function my_pmpro_memberslist_extra_cols_header($theusers)
+{
+	?>
+	<th><?php _e('Membership Category', 'pmpro');?></th>
+	<?php
+}
+add_action('pmpro_memberslist_extra_cols_header', 'my_pmpro_memberslist_extra_cols_header');
+//Add 'Company' Column to Members List Rows
+function my_pmpro_memberslist_extra_cols_body($theuser)
+{
+?>
+<td>
+	<?php 
+		if(!empty($theuser->memb_type))
+			echo $theuser->memb_type;
+	?>
+</td>
+<?php
+}
+add_action('pmpro_memberslist_extra_cols_body', 'my_pmpro_memberslist_extra_cols_body');
+
+function hide_discount_code_field_for_specific_levels($show)
+{
+  global $pmpro_level;
+  
+  if( in_array( $pmpro_level->id, array(1,2,3,7) ) )
+  {
+	  $show = false;
+  }
+  return $show;
+}
+add_filter('pmpro_show_discount_code', 'hide_discount_code_field_for_specific_levels');
+
+/*
+  Only let level 8 and level 9 members sign up if they use a discount code.
+  Place this code in your active theme's functions.php or a custom plugin.
+*/
+function my_pmpro_registration_checks_require_code_to_register($pmpro_continue_registration)
+{
+  //only bother if things are okay so far
+	if(!$pmpro_continue_registration)
+		return $pmpro_continue_registration;
+
+	//level = 1 and there is no discount code, then show an error message
+	global $pmpro_level, $discount_code;
+	
+  //if($pmpro_level->id == 1 && (empty($discount_code) || trim(strtoupper($discount_code)) != "REQUIRED_CODE_IN_UPPERCASE")) //use this conditional to check for a specific code.
+  // if($pmpro_level->id == 8 && empty($discount_code))
+  if( in_array( $pmpro_level->id, array(8,9)) && empty($discount_code))
+
+
+	{
+		pmpro_setMessage("You must use a valid discount code to register as a member of a company group.", "pmpro_error");
+		return false;
+	}
+	
+	return $pmpro_continue_registration;
+}
+add_filter("pmpro_registration_checks", "my_pmpro_registration_checks_require_code_to_register");
+
+/*
+ * Add 30 day grace period when membership expires 
+
+ 
+function my_pmpro_membership_post_membership_expiry( $user_id, $level_id ) {
+	// Make sure we aren't already in a grace period for this level
+	$grace_level = get_user_meta( $user_id, 'grace_level', true );
+	if ( empty( $grace_level ) || $grace_level !== $level_id ) {
+		// Give them their level back with 30 day expiration
+		$grace_level                  = array();
+		$grace_level['user_id'] = $user_id;
+		$grace_level['membership_id'] = $level_id;
+		$grace_level['enddate']       = date( 'Y-m-d H:i:s', strtotime( '+30 days', current_time( 'timestamp' ) ) );
+		$changed = pmpro_changeMembershipLevel( $grace_level, $user_id );
+		update_user_meta( $user_id, 'grace_level', $level_id );
+	}
+	else
+		delete_user_meta($user_id, 'grace_level');
+}
+
+add_action('pmpro_membership_post_membership_expiry', 'my_pmpro_membership_post_membership_expiry', 10, 2);
+
+*/
+
+/**
+ * Change text of Discount code to Group Code
+ */
+function my_pmpro_text_strings( $translated_text, $text, $domain ) {
+	switch ( $translated_text ) {
+		case 'Discount Code' :
+			$translated_text = __( 'Group Code', 'paid-memberships-pro' );
+			break;
+		case 'Do you have a discount code?' :
+			$translated_text = __( 'Do you have a group code?', 'paid-memberships-pro' );
+			break;
+		case 'Click here to enter your discount code' :
+			$translated_text = __( 'Click here to enter your group code', 'paid-memberships-pro' );
+			break;
+		
+	}
+	return $translated_text;
+}
+
+add_filter( 'gettext', 'my_pmpro_text_strings', 20, 3 );
+
+/*
+Add bcc for PMPro admin emails
+*/
+function my_pmpro_email_headers_admin_emails($headers, $email)
+{		
+	//bcc emails already going to admin_email
+        if(strpos($email->template, "_admin") !== false)
+	{
+		//add bcc
+		$headers[] = "Bcc:" . "director@cacheeseguild.org, communications@cacheeseguild.org";		
+	}
+ 
+	return $headers;
+}
+add_filter("pmpro_email_headers", "my_pmpro_email_headers_admin_emails", 10, 2);
+
+/**
+* Filter the settings of email frequency sent when using the Extra Expiration Warning Emails Add On 
+* by default pmpro sends an email 7 days prior to expiration.  This adds an early reminder.
+
+*/
+function custom_pmproeewe_email_frequency( $settings = array() ) {
+	$settings = array(
+	    7 => '',
+		30 => '',
+	);
+	return $settings;
+}
+add_filter( 'pmproeewe_email_frequency_and_templates', 'custom_pmproeewe_email_frequency', 10, 1 );
+
+/**
+**Add Sponsor to Member List for cross-reference
+*/
+
+function add_sponsor_to_member_list($theuser)
+{?>
+	<td><?php
+	$parent = pmprosm_getSponsor($theuser->ID, true);
+	
+	if($parent)
+	{?>
+		<a href="<?php echo get_edit_user_link($parent->ID); ?>"> <?php echo $parent->display_name ?></a> <?php
+	}
+	
+	else
+		echo "N/A";
+	?>
+	
+	</td><?php
+}
+
+function add_sponsor_to_member_list_heading()
+{?>
+	<th><?php echo "Sponsor";?> </th><?php
+}
+
+add_action("pmpro_memberslist_extra_cols_body", "add_sponsor_to_member_list");
+add_action("pmpro_memberslist_extra_cols_header", "add_sponsor_to_member_list_heading");
+
+function my_pmpro_members_list_csv_extra_columns($columns)
+{
+	$columns["sponsor"] = "my_sponsor_name";
+
+	return $columns;
+}
+add_filter("pmpro_members_list_csv_extra_columns", "my_pmpro_members_list_csv_extra_columns", 10);
+
+function my_sponsor_name($user)
+{
+	$parent = pmprosm_getSponsor($user->ID, true);
+	
+	if($parent)
+		return $parent->display_name;
+	else
+		return "";	
+}
+
+/*
+ * Show a list of the sponsored (child) member accounts on the parent's profile page on the Member Directory's Profile page.
+ *
+ * You can add this recipe to your site by creating a custom plugin
+ * or using the Code Snippets plugin available for free in the WordPress repository.
+ * Read this companion article for step-by-step directions on either method.
+ * https://www.paidmembershipspro.com/create-a-plugin-for-pmpro-customizations/ 
+ */
+function show_sponsored_child_accounts_pmpro_member_profile_after( $pu ) {
+	$sponsored_ids = pmprosm_getChildren( $pu->ID );
+	
+	if ( empty( $sponsored_ids ) ) {
+		return;
+	}
+
+	$sponsored_list = new WP_User_Query(
+		array(
+			'include' => $sponsored_ids,
+			'orderby' => 'name',
+			'order'   => 'ASC'
+		)
+	);
+
+	$sponsored_members = $sponsored_list->get_results();
+	if ( ! empty( $sponsored_members ) ) {
+		echo '<strong>Sponsored Members</strong>';
+		echo '<ul>';
+		foreach( $sponsored_members as $sponsored_member ) {
+			echo '<li>' . esc_html( $sponsored_member->data->display_name ) . '</li>';
+		}
+		echo '</ul>';
+	}
+}
+add_action( 'pmpro_member_profile_after', 'show_sponsored_child_accounts_pmpro_member_profile_after' );
+
